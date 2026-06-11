@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Sinne-Trainer – Lernzielkontrolle Körper</title>
+<style>
+  :root{
+    --bg:#FDF8EF;
+    --ink:#27303F;
+    --card:#FFFFFF;
+    --auge:#3D7DE0;
+    --ohr:#F08A24;
+    --nase:#2EA56C;
+    --zunge:#E2548F;
+    --haut:#8A63D2;
+    --ok:#2EA56C;
+    --nein:#E05252;
+    --shadow:0 4px 0 rgba(39,48,63,.14);
+    --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{
+    font-family:'Trebuchet MS','Comic Sans MS',ui-rounded,system-ui,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    min-height:100vh;
+    padding-bottom:90px;
+    touch-action:manipulation;
+  }
+  header{text-align:center;padding:18px 14px 8px;}
+  header h1{font-size:1.5rem;letter-spacing:.5px;}
+  header p{font-size:.85rem;opacity:.7;margin-top:2px;}
+  .screen{display:none;max-width:560px;margin:0 auto;padding:10px 14px 30px;}
+  .screen.active{display:block;animation:pop .25s ease;}
+  @keyframes pop{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important;}}
+
+  /* ---------- Navigation unten ---------- */
+  nav{
+    position:fixed;bottom:0;left:0;right:0;
+    background:#fff;border-top:3px solid var(--ink);
+    display:flex;justify-content:space-around;
+    padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+    z-index:50;
+  }
+  nav button{
+    background:none;border:none;font-family:inherit;color:var(--ink);
+    font-size:.68rem;display:flex;flex-direction:column;align-items:center;gap:2px;
+    padding:4px 6px;border-radius:12px;cursor:pointer;opacity:.55;
+  }
+  nav button .ic{font-size:1.4rem;pointer-events:none;}
+  nav button *{pointer-events:none;}
+  nav button.on{opacity:1;background:#FFF1D6;}
+  nav button:focus-visible{outline:3px solid var(--auge);}
+
+  /* ---------- Start ---------- */
+  .hero-eye{
+    width:150px;height:150px;margin:8px auto 4px;border-radius:50%;
+    background:#fff;
+    border:4px solid var(--ink);position:relative;overflow:hidden;
+    box-shadow:var(--shadow);cursor:pointer;
+  }
+  .hero-eye *{pointer-events:none;}
+  .hero-iris{
+    position:absolute;inset:18%;border-radius:50%;
+    background:radial-gradient(circle, #6FA8FF 0%, #2F66C4 70%);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .hero-pupil{
+    width:42%;aspect-ratio:1;border-radius:50%;background:#10131A;
+    transition:width .4s ease;
+    position:relative;
+  }
+  .hero-pupil::after{content:"";position:absolute;top:14%;left:16%;width:26%;height:26%;border-radius:50%;background:rgba(255,255,255,.85);}
+  .menu{display:grid;gap:12px;margin-top:14px;}
+  .menu button{
+    font-family:inherit;font-size:1.05rem;font-weight:bold;color:var(--ink);
+    background:var(--card);border:3px solid var(--ink);border-radius:var(--radius);
+    padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;
+    box-shadow:var(--shadow);text-align:left;
+  }
+  .menu button *{pointer-events:none;}
+  .menu button:active{transform:translateY(3px);box-shadow:none;}
+  .menu .big-ic{font-size:1.7rem;}
+  .menu small{display:block;font-weight:normal;font-size:.78rem;opacity:.65;}
+  .badge-row{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:10px;font-size:.8rem;}
+  .badge{background:#fff;border:2px solid var(--ink);border-radius:999px;padding:4px 10px;}
+
+  /* ---------- Themen-Chips ---------- */
+  .chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:8px 0 14px;}
+  .chip{
+    border:2px solid var(--ink);border-radius:999px;padding:8px 12px;font-family:inherit;
+    font-size:.85rem;font-weight:bold;background:#fff;cursor:pointer;color:var(--ink);
+  }
+  .chip *{pointer-events:none;}
+  .chip.on{color:#fff;}
+  .chip.t-auge.on{background:var(--auge);}
+  .chip.t-ohr.on{background:var(--ohr);}
+  .chip.t-nase.on{background:var(--nase);}
+  .chip.t-zunge.on{background:var(--zunge);}
+  .chip.t-sinne.on{background:var(--haut);}
+
+  /* ---------- Flashcards ---------- */
+  .fcard{
+    background:var(--card);border:3px solid var(--ink);border-radius:var(--radius);
+    box-shadow:var(--shadow);min-height:230px;padding:20px;
+    display:flex;flex-direction:column;justify-content:center;align-items:center;
+    text-align:center;cursor:pointer;gap:10px;
+  }
+  .fcard *{pointer-events:none;}
+  .fcard .label{font-size:.75rem;font-weight:bold;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:999px;color:#fff;}
+  .fcard .q{font-size:1.1rem;font-weight:bold;}
+  .fcard .a{font-size:1rem;line-height:1.45;}
+  .fcard .tap{font-size:.75rem;opacity:.5;}
+  .fnav{display:flex;justify-content:space-between;align-items:center;margin-top:12px;}
+  .fnav button{
+    font-family:inherit;font-size:1rem;font-weight:bold;border:3px solid var(--ink);
+    background:#fff;border-radius:14px;padding:12px 18px;cursor:pointer;box-shadow:var(--shadow);color:var(--ink);
+  }
+  .fnav button:active{transform:translateY(3px);box-shadow:none;}
+  .fcount{font-size:.85rem;opacity:.7;}
+
+  /* ---------- Quiz ---------- */
+  .qbox{background:var(--card);border:3px solid var(--ink);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;}
+  .qbox .topic{font-size:.72rem;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#fff;display:inline-block;padding:3px 10px;border-radius:999px;margin-bottom:10px;}
+  .qbox h2{font-size:1.08rem;line-height:1.4;margin-bottom:14px;}
+  .answers{display:grid;gap:10px;}
+  .answers button{
+    font-family:inherit;font-size:.98rem;text-align:left;color:var(--ink);
+    background:#FAF6EE;border:2.5px solid var(--ink);border-radius:14px;
+    padding:14px;cursor:pointer;
+  }
+  .answers button.right{background:#D9F3E4;border-color:var(--ok);}
+  .answers button.wrong{background:#FBDFDF;border-color:var(--nein);}
+  .answers button:disabled{cursor:default;}
+  .qfeed{margin-top:12px;font-weight:bold;min-height:24px;}
+  .qnext{margin-top:10px;width:100%;font-family:inherit;font-size:1rem;font-weight:bold;border:3px solid var(--ink);background:#FFE08A;border-radius:14px;padding:14px;cursor:pointer;box-shadow:var(--shadow);color:var(--ink);display:none;}
+  .qbar{height:14px;background:#fff;border:2px solid var(--ink);border-radius:999px;overflow:hidden;margin-bottom:14px;}
+  .qbar i{display:block;height:100%;background:linear-gradient(90deg,var(--nase),var(--auge));width:0;transition:width .3s;}
+  .result{text-align:center;padding:20px;}
+  .result .emoji{font-size:3.4rem;}
+  .result h2{margin:8px 0 4px;}
+
+  /* ---------- Lückentext ---------- */
+  .gaptext{background:var(--card);border:3px solid var(--ink);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;font-size:1rem;line-height:2.1;}
+  .gap{
+    display:inline-block;min-width:96px;border-bottom:3px dashed var(--ink);
+    text-align:center;font-weight:bold;padding:2px 8px;cursor:pointer;border-radius:6px 6px 0 0;
+  }
+  .gap.sel{background:#FFE08A;}
+  .gap.right{color:var(--ok);border-bottom-style:solid;border-color:var(--ok);}
+  .gap.wrong{color:var(--nein);}
+  .wordbank{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:14px 0;}
+  .wordbank button{
+    font-family:inherit;font-size:.95rem;font-weight:bold;border:2.5px solid var(--ink);color:var(--ink);
+    background:#fff;border-radius:999px;padding:10px 14px;cursor:pointer;box-shadow:var(--shadow);
+  }
+  .wordbank button:disabled{opacity:.3;box-shadow:none;}
+  .check{width:100%;font-family:inherit;font-size:1rem;font-weight:bold;border:3px solid var(--ink);background:#BDE3FF;border-radius:14px;padding:14px;cursor:pointer;box-shadow:var(--shadow);color:var(--ink);}
+  .hint{text-align:center;font-size:.82rem;opacity:.65;margin:8px 0;}
+
+  /* ---------- Zuordnen ---------- */
+  .pairs{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .pairs button{
+    font-family:inherit;font-size:.85rem;border:2.5px solid var(--ink);border-radius:14px;color:var(--ink);
+    background:#fff;padding:12px 8px;cursor:pointer;min-height:64px;line-height:1.3;
+  }
+  .pairs button *{pointer-events:none;}
+  .pairs button.sel{background:#FFE08A;}
+  .pairs button.done{opacity:.35;background:#D9F3E4;border-color:var(--ok);cursor:default;}
+  .pairs button.shake{animation:shake .3s;}
+  @keyframes shake{25%{transform:translateX(-5px);}75%{transform:translateX(5px);}}
+
+  /* ---------- Pupillen-Labor ---------- */
+  .lab{
+    border:3px solid var(--ink);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:26px 18px;text-align:center;transition:background .4s;background:#FFF3D6;
+  }
+  .lab input[type=range]{width:90%;margin-top:18px;accent-color:var(--ohr);height:40px;}
+  .lab .labword{font-weight:bold;font-size:1.05rem;margin-top:8px;}
+  .lab .explain{font-size:.9rem;margin-top:10px;line-height:1.5;}
+
+  .topbtn{
+    display:inline-block;margin-bottom:10px;font-family:inherit;font-size:.85rem;font-weight:bold;
+    border:2px solid var(--ink);background:#fff;border-radius:999px;padding:8px 14px;cursor:pointer;color:var(--ink);
+  }
+
+  /* Konfetti */
+  .conf{position:fixed;top:-12px;font-size:1.3rem;z-index:99;animation:fall 2.6s linear forwards;pointer-events:none;}
+  @keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:.6;}}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🧠 Sinne-Trainer</h1>
+  <p>Lernzielkontrolle «Körper» · 17. Juni 2026</p>
+</header>
+
+<!-- ================= START ================= -->
+<section class="screen active" id="scr-home">
+  <div class="hero-eye" id="heroEye" data-action="hero">
+    <div class="hero-iris"><div class="hero-pupil" id="heroPupil"></div></div>
+  </div>
+  <p class="hint">Tipp aufs Auge – die Pupille reagiert! 👆</p>
+
+  <div class="menu">
+    <button data-action="go" data-target="lernen"><span class="big-ic">📖</span><span>Lernen<small>Karten zu allen Themen anschauen</small></span></button>
+    <button data-action="go" data-target="quiz"><span class="big-ic">❓</span><span>Quiz<small>Teste dein Wissen – mit Punkten!</small></span></button>
+    <button data-action="go" data-target="gap"><span class="big-ic">✏️</span><span>Lückentext «Sehen»<small>Genau wie in der Prüfung</small></span></button>
+    <button data-action="go" data-target="match"><span class="big-ic">🔗</span><span>Zuordnen<small>Welcher Teil macht was?</small></span></button>
+    <button data-action="go" data-target="lab"><span class="big-ic">👁️</span><span>Pupillen-Labor<small>Hell und dunkel ausprobieren</small></span></button>
+  </div>
+
+  <div class="badge-row">
+    <span class="badge">👁️ Auge</span><span class="badge">👂 Ohr</span>
+    <span class="badge">👃 Nase</span><span class="badge">👅 Zunge</span><span class="badge">✋ Haut</span>
+  </div>
+</section>
+
+<!-- ================= LERNEN ================= -->
+<section class="screen" id="scr-lernen">
+  <div class="chips" id="chips"></div>
+  <div class="fcard" id="fcard" data-action="flip"></div>
+  <div class="fnav">
+    <button data-action="card" data-dir="-1">◀ Zurück</button>
+    <span class="fcount" id="fcount"></span>
+    <button data-action="card" data-dir="1">Weiter ▶</button>
+  </div>
+</section>
+
+<!-- ================= QUIZ ================= -->
+<section class="screen" id="scr-quiz">
+  <div class="qbar"><i id="qbarfill"></i></div>
+  <div id="quizArea"></div>
+</section>
+
+<!-- ================= LÜCKENTEXT ================= -->
+<section class="screen" id="scr-gap">
+  <p class="hint">1. Tipp auf eine Lücke. &nbsp;2. Tipp auf das passende Wort.</p>
+  <div class="wordbank" id="wordbank"></div>
+  <div class="gaptext" id="gaptext"></div>
+  <p class="hint" id="gapfeed"></p>
+  <button class="check" data-action="checkgaps">✅ Kontrollieren</button>
+  <p style="text-align:center;margin-top:8px;"><button class="topbtn" data-action="resetgap">🔄 Nochmals von vorne</button></p>
+</section>
+
+<!-- ================= ZUORDNEN ================= -->
+<section class="screen" id="scr-match">
+  <div class="chips">
+    <button class="chip t-auge on" id="mAuge" data-action="matchset" data-set="auge">👁️ Auge</button>
+    <button class="chip t-ohr" id="mOhr" data-action="matchset" data-set="ohr">👂 Ohr</button>
+    <button class="chip t-zunge" id="mSinne" data-action="matchset" data-set="sinne">🖐️ 5 Sinne</button>
+  </div>
+  <p class="hint">Finde die Paare: Tipp links einen Begriff an, dann rechts die passende Aufgabe.</p>
+  <div class="pairs" id="pairs"></div>
+  <p class="hint" id="matchfeed"></p>
+</section>
+
+<!-- ================= PUPILLEN-LABOR ================= -->
+<section class="screen" id="scr-lab">
+  <div class="lab" id="labBox">
+    <div class="hero-eye" style="margin:0 auto;">
+      <div class="hero-iris"><div class="hero-pupil" id="labPupil"></div></div>
+    </div>
+    <input type="range" id="lightSlider" min="0" max="100" value="50" aria-label="Helligkeit">
+    <div class="labword" id="labWord">🌤️ Normal hell</div>
+    <p class="explain" id="labText">Schiebe den Regler nach links (dunkel) und rechts (hell)!</p>
+  </div>
+  <div class="qbox" style="margin-top:14px;">
+    <h2 style="font-size:.95rem;">📝 Das musst du wissen:</h2>
+    <p style="font-size:.92rem;line-height:1.6;">
+      ☀️ Wenn es <b>hell</b> ist, wird die Pupille <b>klein</b> – es soll nicht zu viel Licht ins Auge.<br><br>
+      🌙 Wenn es <b>dunkel</b> ist, wird die Pupille <b>gross</b> – so kommt mehr Licht ins Auge.<br><br>
+      🌈 Die <b>Iris (Regenbogenhaut)</b> ist der farbige Ring um die Pupille. Sie bestimmt die <b>Augenfarbe</b>.
+    </p>
+  </div>
+</section>
+
+<nav>
+  <button id="nav-home" class="on" data-action="go" data-target="home"><span class="ic">🏠</span>Start</button>
+  <button id="nav-lernen" data-action="go" data-target="lernen"><span class="ic">📖</span>Lernen</button>
+  <button id="nav-quiz" data-action="go" data-target="quiz"><span class="ic">❓</span>Quiz</button>
+  <button id="nav-gap" data-action="go" data-target="gap"><span class="ic">✏️</span>Lücken</button>
+  <button id="nav-match" data-action="go" data-target="match"><span class="ic">🔗</span>Paare</button>
+  <button id="nav-lab" data-action="go" data-target="lab"><span class="ic">👁️</span>Labor</button>
+</nav>
+
+<script>
+/* =========================================================
+   DATEN
+========================================================= */
+var TOPICS = {
+  auge:{name:"Auge", emoji:"👁️", color:"var(--auge)"},
+  ohr:{name:"Ohr", emoji:"👂", color:"var(--ohr)"},
+  nase:{name:"Geruchssinn", emoji:"👃", color:"var(--nase)"},
+  zunge:{name:"Geschmackssinn", emoji:"👅", color:"var(--zunge)"},
+  sinne:{name:"5 Sinne", emoji:"🖐️", color:"var(--haut)"}
+};
+
+var CARDS = [
+ {t:"auge", q:"Welche 4 Teile musst du auf einem Bild vom Auge erkennen und anschreiben können?",
+  a:"Augenbraue · Augenlid · Wimpern · Pupille"},
+ {t:"auge", q:"Welche Informationen können die Augen aufnehmen?",
+  a:"Entfernung, Grösse, Form, Bewegung, hell und dunkel, scharf und unscharf"},
+ {t:"auge", q:"Was ist die Aufgabe der Augenbraue?",
+  a:"Sie leitet den Schweiss weg, damit er nicht ins Auge kommt. 💧"},
+ {t:"auge", q:"Was ist die Aufgabe der Wimpern?",
+  a:"Sie schützen das Auge vor Staub. 🌬️"},
+ {t:"auge", q:"Was ist die Aufgabe der Tränenflüssigkeit?",
+  a:"Sie hält das Auge feucht und spült Schmutz weg. 💦"},
+ {t:"auge", q:"Was ist die Aufgabe des Augenlids?",
+  a:"Es wischt über das Auge und schliesst bei Gefahr. 😉"},
+ {t:"auge", q:"Wie sieht die Pupille aus, wenn es hell ist? Und wenn es dunkel ist?",
+  a:"Hell ☀️ → Pupille klein\nDunkel 🌙 → Pupille gross"},
+ {t:"auge", q:"Was bestimmt die Augenfarbe?",
+  a:"Die Iris – sie heisst auch Regenbogenhaut. 🌈"},
+ {t:"sinne", q:"Welche 5 Sinnesorgane hat ein Mensch – und was macht man damit?",
+  a:"👁️ Auge → sehen\n👂 Ohr → hören\n👃 Nase → riechen\n👅 Zunge → schmecken\n✋ Haut → fühlen / tasten"},
+ {t:"ohr", q:"Aus welchen 3 Teilen besteht unser Ohr?",
+  a:"Aussenohr · Mittelohr · Innenohr"},
+ {t:"ohr", q:"Welche Teile musst du auf einem Bild vom Ohr erkennen können?",
+  a:"Ohrmuschel, Gehörgang, Hammer, Amboss, Steigbügel (= Gehörknöchelchen), Trommelfell, Gehörschnecke mit ovalem Fenster, Hörnerven"},
+ {t:"ohr", q:"Was ist die Aufgabe des Aussenohrs?",
+  a:"Die Ohrmuschel fängt den Schall ein und leitet ihn durch den Gehörgang zum Trommelfell. 📣"},
+ {t:"ohr", q:"Was ist die Aufgabe der Gehörknöchelchen (Hammer, Amboss, Steigbügel)?",
+  a:"Sie nehmen die Schwingungen vom Trommelfell auf, verstärken sie und leiten sie zum ovalen Fenster weiter. 🔨"},
+ {t:"ohr", q:"Was passiert im Innenohr?",
+  a:"In der Gehörschnecke werden die Schwingungen in Nervensignale umgewandelt. Die Hörnerven leiten sie ans Gehirn. 🐌➡️🧠"},
+ {t:"ohr", q:"Wo liegt das Gleichgewichtsorgan und wofür ist es zuständig?",
+  a:"Es liegt im Innenohr und sorgt dafür, dass wir das Gleichgewicht halten können (z. B. beim Stehen, Gehen, Velofahren). ⚖️"},
+ {t:"nase", q:"Wie gross ist der riechempfindliche Teil unserer Nasenschleimhaut ungefähr?",
+  a:"Ungefähr so gross wie eine Briefmarke. ✉️"},
+ {t:"nase", q:"Wie viele verschiedene Gerüche kann ein Mensch ungefähr unterscheiden?",
+  a:"Ungefähr 10'000 Gerüche!\n(Schau zur Sicherheit in deiner Broschüre nach, welche Zahl ihr gelernt habt.)"},
+ {t:"nase", q:"Was haben wir beim Geruchs-Experiment gelernt?",
+  a:"Erkläre das Experiment aus dem Unterricht mit eigenen Worten: Was habt ihr gemacht? Was kam heraus?\nTypisch: Mit zugehaltener Nase schmeckt man viel weniger – Riechen und Schmecken arbeiten zusammen! 👃+👅"},
+ {t:"zunge", q:"Welche 4 Geschmäcker können wir unterscheiden? Nenne je ein Beispiel!",
+  a:"🧂 salzig → Chips\n🍋 sauer → Zitrone\n🍫 süss → Schokolade\n☕ bitter → Grapefruit oder Kaffee"},
+ {t:"zunge", q:"Was haben wir beim Experiment mit dem Zuckerstück gelernt?",
+  a:"Auf der trockenen Zunge schmeckt man den Zucker fast nicht. Erst wenn er sich im Speichel auflöst, schmecken wir süss.\n→ Wir schmecken nur, was sich in Flüssigkeit auflöst! 💧"}
+];
+
+var QUIZ = [
+ {t:"auge", q:"Was macht die Augenbraue?", c:["Sie leitet den Schweiss weg","Sie schützt vor Staub","Sie bestimmt die Augenfarbe"], r:0},
+ {t:"auge", q:"Was machen die Wimpern?", c:["Sie spülen Schmutz weg","Sie schützen das Auge vor Staub","Sie schliessen bei Gefahr"], r:1},
+ {t:"auge", q:"Was macht die Tränenflüssigkeit?", c:["Sie macht die Pupille grösser","Sie leitet Schweiss weg","Sie hält das Auge feucht und spült Schmutz weg"], r:2},
+ {t:"auge", q:"Was macht das Augenlid?", c:["Es wischt über das Auge und schliesst bei Gefahr","Es bündelt die Lichtstrahlen","Es leitet Informationen ans Gehirn"], r:0},
+ {t:"auge", q:"Es ist sehr hell. Wie sieht die Pupille aus?", c:["Gross","Klein","Sie verändert sich nicht"], r:1},
+ {t:"auge", q:"Es ist dunkel. Wie sieht die Pupille aus?", c:["Klein","Sie wird eckig","Gross"], r:2},
+ {t:"auge", q:"Wie heisst die Iris noch?", c:["Hornhaut","Regenbogenhaut","Netzhaut"], r:1},
+ {t:"auge", q:"Was bestimmt die Iris?", c:["Die Augenfarbe","Wie gut wir sehen","Die Grösse des Auges"], r:0},
+ {t:"auge", q:"Wie wird das Bild auf der Netzhaut abgebildet?", c:["Genau richtig","Verkehrt herum","Doppelt"], r:1},
+ {t:"auge", q:"Wohin leitet der Sehnerv die Informationen?", c:["Zur Linse","Zum Herzen","Zum Gehirn"], r:2},
+ {t:"sinne", q:"Welches sind die 5 Sinnesorgane?", c:["Auge, Ohr, Nase, Zunge, Haut","Auge, Ohr, Mund, Haare, Hand","Auge, Nase, Zunge, Herz, Haut"], r:0},
+ {t:"sinne", q:"Mit welchem Sinnesorgan fühlen / tasten wir?", c:["Mit der Zunge","Mit der Haut","Mit der Nase"], r:1},
+ {t:"ohr", q:"Aus welchen 3 Teilen besteht das Ohr?", c:["Vorderohr, Hinterohr, Oberohr","Ohrmuschel, Trommelfell, Hörnerv","Aussenohr, Mittelohr, Innenohr"], r:2},
+ {t:"ohr", q:"Wie heissen die 3 Gehörknöchelchen?", c:["Hammer, Amboss, Steigbügel","Hammer, Zange, Sattel","Nagel, Amboss, Bügel"], r:0},
+ {t:"ohr", q:"Was macht die Ohrmuschel?", c:["Sie wandelt Schall in Nervensignale um","Sie fängt den Schall ein","Sie hält das Gleichgewicht"], r:1},
+ {t:"ohr", q:"Was machen die Gehörknöchelchen?", c:["Sie verstärken die Schwingungen und leiten sie weiter","Sie produzieren Ohrenschmalz","Sie schützen vor lauten Geräuschen"], r:0},
+ {t:"ohr", q:"Was passiert in der Gehörschnecke?", c:["Der Schall wird lauter gemacht","Schwingungen werden in Nervensignale umgewandelt","Das Trommelfell wird gespannt"], r:1},
+ {t:"ohr", q:"Wo liegt das Gleichgewichtsorgan?", c:["Im Innenohr","Im Aussenohr","Im Gehirn"], r:0},
+ {t:"nase", q:"Wie gross ist der riechempfindliche Teil der Nasenschleimhaut ungefähr?", c:["So gross wie ein Fussballfeld","So gross wie eine Briefmarke","So gross wie ein Reiskorn"], r:1},
+ {t:"nase", q:"Wie viele Gerüche kann ein Mensch ungefähr unterscheiden?", c:["Ungefähr 100","Ungefähr 1'000","Ungefähr 10'000"], r:2},
+ {t:"zunge", q:"Welche 4 Geschmäcker können wir unterscheiden?", c:["salzig, sauer, süss, bitter","salzig, scharf, süss, fruchtig","sauer, süss, scharf, mild"], r:0},
+ {t:"zunge", q:"Eine Zitrone schmeckt …", c:["bitter","sauer","salzig"], r:1},
+ {t:"zunge", q:"Warum schmeckt man das Zuckerstück auf der trockenen Zunge fast nicht?", c:["Weil Zucker keinen Geschmack hat","Weil die Zunge nur salzig schmecken kann","Weil sich der Zucker erst im Speichel auflösen muss"], r:2}
+];
+
+var GAP = {
+  words:["verkehrt herum","Pupille","Gehirn","reflektiert","Linse","kreuzen"],
+  parts:[
+    "Wenn wir einen Gegenstand sehen, werden die Lichtstrahlen von dem Gegenstand ",
+    {ans:"reflektiert"},
+    " (zurückgeworfen) und gelangen zu unserem Auge. Dabei müssen sie durch die kristallklare Hornhaut und das kleine Loch, die ",
+    {ans:"Pupille"},
+    ". Auf ihrem weiteren Weg durch die ",
+    {ans:"Linse"},
+    " werden die Lichtstrahlen weiter gebündelt und ",
+    {ans:"kreuzen"},
+    " sich. Deshalb wird das Bild auf der Netzhaut ",
+    {ans:"verkehrt herum"},
+    " abgebildet. Über den Sehnerv werden die Informationen an das ",
+    {ans:"Gehirn"},
+    " weitergeleitet und dort wieder zu einem richtigen Bild zusammengesetzt."
+  ]
+};
+
+var MATCH = {
+  auge:[
+    ["Augenbraue","leitet den Schweiss weg"],
+    ["Wimpern","schützen vor Staub"],
+    ["Tränenflüssigkeit","hält das Auge feucht, spült Schmutz weg"],
+    ["Augenlid","wischt übers Auge, schliesst bei Gefahr"],
+    ["Iris (Regenbogenhaut)","bestimmt die Augenfarbe"],
+    ["Pupille","kleines Loch – hier kommt das Licht hinein"]
+  ],
+  ohr:[
+    ["Ohrmuschel","fängt den Schall ein"],
+    ["Gehörgang","leitet den Schall zum Trommelfell"],
+    ["Gehörknöchelchen","verstärken die Schwingungen"],
+    ["Gehörschnecke","wandelt Schwingungen in Nervensignale um"],
+    ["Hörnerven","leiten die Signale ans Gehirn"],
+    ["Gleichgewichtsorgan","liegt im Innenohr – hilft beim Balancieren"]
+  ],
+  sinne:[
+    ["👁️ Auge","sehen"],
+    ["👂 Ohr","hören"],
+    ["👃 Nase","riechen"],
+    ["👅 Zunge","schmecken"],
+    ["✋ Haut","fühlen / tasten"]
+  ]
+};
+
+/* =========================================================
+   ZENTRALER EVENT-HANDLER (iPad-sicher, keine Inline-Handler)
+========================================================= */
+document.addEventListener('click', function(ev){
+  var el = ev.target.closest('[data-action]');
+  if(!el) return;
+  var act = el.dataset.action;
+  if(act==='go') go(el.dataset.target);
+  else if(act==='hero') toggleHero();
+  else if(act==='flip') flipCard();
+  else if(act==='card') moveCard(parseInt(el.dataset.dir,10));
+  else if(act==='topic') setTopic(el.dataset.topic);
+  else if(act==='answer') answer(el, parseInt(el.dataset.i,10), parseInt(el.dataset.r,10));
+  else if(act==='qnext'){ qPos++; showQ(); }
+  else if(act==='restart') startQuiz();
+  else if(act==='selgap') selGap(el.dataset.id);
+  else if(act==='useword') useWord(el.dataset.word);
+  else if(act==='checkgaps') checkGaps();
+  else if(act==='resetgap') initGap();
+  else if(act==='matchset') initMatch(el.dataset.set);
+  else if(act==='pick') pick(el);
+});
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+function go(s){
+  var screens=document.querySelectorAll('.screen');
+  for(var i=0;i<screens.length;i++) screens[i].classList.remove('active');
+  document.getElementById('scr-'+s).classList.add('active');
+  var navs=document.querySelectorAll('nav button');
+  for(var j=0;j<navs.length;j++) navs[j].classList.remove('on');
+  var nb=document.getElementById('nav-'+s); if(nb) nb.classList.add('on');
+  if(s==='quiz' && !quizRunning) startQuiz();
+  window.scrollTo(0,0);
+}
+
+var heroBig=false;
+function toggleHero(){
+  heroBig=!heroBig;
+  document.getElementById('heroPupil').style.width = heroBig? '72%':'30%';
+}
+
+/* =========================================================
+   LERNEN (Flashcards)
+========================================================= */
+var fTopic='auge', fIdx=0, fFlip=false;
+function buildChips(){
+  var order=['auge','ohr','nase','zunge','sinne'];
+  var cls={auge:'t-auge',ohr:'t-ohr',nase:'t-nase',zunge:'t-zunge',sinne:'t-sinne'};
+  var html='';
+  for(var i=0;i<order.length;i++){
+    var k=order[i];
+    html+='<button class="chip '+cls[k]+(k===fTopic?' on':'')+'" data-action="topic" data-topic="'+k+'">'+TOPICS[k].emoji+' '+TOPICS[k].name+'</button>';
+  }
+  document.getElementById('chips').innerHTML=html;
+}
+function setTopic(t){fTopic=t;fIdx=0;fFlip=false;buildChips();renderCard();}
+function topicCards(){return CARDS.filter(function(c){return c.t===fTopic;});}
+function renderCard(){
+  var cards=topicCards(), c=cards[fIdx], tp=TOPICS[c.t];
+  var body = fFlip
+    ? '<div class="a">'+c.a.replace(/\n/g,'<br>')+'</div><div class="tap">Tipp für die Frage 🔄</div>'
+    : '<div class="q">'+c.q+'</div><div class="tap">Tipp auf die Karte für die Antwort 🔄</div>';
+  document.getElementById('fcard').innerHTML =
+    '<span class="label" style="background:'+tp.color+'">'+tp.emoji+' '+tp.name+'</span>'+body;
+  document.getElementById('fcount').textContent = 'Karte '+(fIdx+1)+' / '+cards.length;
+}
+function flipCard(){fFlip=!fFlip;renderCard();}
+function moveCard(d){
+  var n=topicCards().length;
+  fIdx=(fIdx+d+n)%n; fFlip=false; renderCard();
+}
+
+/* =========================================================
+   QUIZ
+========================================================= */
+var qOrder=[], qPos=0, qScore=0, quizRunning=false;
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function startQuiz(){
+  quizRunning=true; qScore=0; qPos=0;
+  qOrder=shuffle(QUIZ.map(function(_,i){return i;}));
+  showQ();
+}
+function showQ(){
+  document.getElementById('qbarfill').style.width=(qPos/qOrder.length*100)+'%';
+  if(qPos>=qOrder.length){return showResult();}
+  var q=QUIZ[qOrder[qPos]], tp=TOPICS[q.t];
+  var idx=shuffle(q.c.map(function(_,i){return i;}));
+  var btns='';
+  for(var k=0;k<idx.length;k++){
+    btns+='<button data-action="answer" data-i="'+idx[k]+'" data-r="'+q.r+'">'+q.c[idx[k]]+'</button>';
+  }
+  document.getElementById('quizArea').innerHTML =
+    '<div class="qbox">'+
+      '<span class="topic" style="background:'+tp.color+'">'+tp.emoji+' '+tp.name+'</span>'+
+      '<h2>'+q.q+'</h2>'+
+      '<div class="answers">'+btns+'</div>'+
+      '<div class="qfeed" id="qfeed"></div>'+
+      '<button class="qnext" id="qnext" data-action="qnext">Weiter ▶</button>'+
+    '</div>';
+}
+function answer(btn,i,r){
+  var all=document.querySelectorAll('.answers button');
+  for(var k=0;k<all.length;k++) all[k].disabled=true;
+  var feed=document.getElementById('qfeed');
+  if(i===r){
+    btn.classList.add('right'); qScore++;
+    feed.textContent='✅ Richtig! Super!'; feed.style.color='var(--ok)';
+  }else{
+    btn.classList.add('wrong');
+    var correct=QUIZ[qOrder[qPos]].c[r];
+    for(var m=0;m<all.length;m++){
+      if(all[m].textContent===correct) all[m].classList.add('right');
+    }
+    feed.textContent='❌ Nicht ganz – merk dir die grüne Antwort!'; feed.style.color='var(--nein)';
+  }
+  document.getElementById('qnext').style.display='block';
+}
+function showResult(){
+  var pct=qScore/qOrder.length;
+  var em='💪', msg='Übe noch ein bisschen weiter – du schaffst das!';
+  if(pct>=0.9){em='🏆';msg='Wow! Du bist bereit für die Prüfung!';fireConfetti();}
+  else if(pct>=0.7){em='🌟';msg='Stark! Fast alles richtig!';fireConfetti();}
+  else if(pct>=0.5){em='👍';msg='Gut! Schau dir die Lernkarten nochmals an.';}
+  document.getElementById('qbarfill').style.width='100%';
+  document.getElementById('quizArea').innerHTML =
+    '<div class="qbox result">'+
+      '<div class="emoji">'+em+'</div>'+
+      '<h2>'+qScore+' von '+qOrder.length+' richtig!</h2>'+
+      '<p>'+msg+'</p>'+
+      '<button class="qnext" style="display:block" data-action="restart">🔄 Nochmals spielen</button>'+
+      '<button class="qnext" style="display:block;background:#fff" data-action="go" data-target="lernen">📖 Zu den Lernkarten</button>'+
+    '</div>';
+}
+function fireConfetti(){
+  var em=['🎉','⭐','🎊','👁️','👂','✨'];
+  for(var i=0;i<26;i++){
+    var s=document.createElement('span');
+    s.className='conf';
+    s.textContent=em[Math.floor(Math.random()*em.length)];
+    s.style.left=Math.random()*100+'vw';
+    s.style.animationDelay=(Math.random()*0.8)+'s';
+    document.body.appendChild(s);
+    setTimeout(function(node){return function(){node.remove();};}(s),3600);
+  }
+}
+
+/* =========================================================
+   LÜCKENTEXT
+========================================================= */
+var gapSel=null, gapFill={};
+function wordId(w){return 'w-'+w.replace(/ /g,'_');}
+function initGap(){
+  gapSel=null; gapFill={};
+  var gi=0, html='';
+  for(var i=0;i<GAP.parts.length;i++){
+    var p=GAP.parts[i];
+    if(typeof p==='string'){html+=p;continue;}
+    html+='<span class="gap" id="gap'+gi+'" data-action="selgap" data-id="'+gi+'" data-ans="'+p.ans+'">&nbsp;?&nbsp;</span>';
+    gi++;
+  }
+  document.getElementById('gaptext').innerHTML=html;
+  var words=shuffle(GAP.words.slice());
+  var wb='';
+  for(var k=0;k<words.length;k++){
+    wb+='<button id="'+wordId(words[k])+'" data-action="useword" data-word="'+words[k]+'">'+words[k]+'</button>';
+  }
+  document.getElementById('wordbank').innerHTML=wb;
+  document.getElementById('gapfeed').textContent='';
+}
+function selGap(id){
+  var g=document.getElementById('gap'+id);
+  if(gapFill[id]){
+    document.getElementById(wordId(gapFill[id])).disabled=false;
+    delete gapFill[id];
+    g.innerHTML='&nbsp;?&nbsp;';
+    g.classList.remove('right','wrong');
+  }
+  var gaps=document.querySelectorAll('.gap');
+  for(var i=0;i<gaps.length;i++) gaps[i].classList.remove('sel');
+  g.classList.add('sel'); gapSel=id;
+}
+function useWord(w){
+  if(gapSel===null){
+    document.getElementById('gapfeed').textContent='👆 Tipp zuerst auf eine Lücke!';
+    return;
+  }
+  var g=document.getElementById('gap'+gapSel);
+  g.textContent=w; g.classList.remove('sel','right','wrong');
+  gapFill[gapSel]=w;
+  document.getElementById(wordId(w)).disabled=true;
+  gapSel=null;
+  document.getElementById('gapfeed').textContent='';
+}
+function checkGaps(){
+  var ok=0, total=0;
+  var gaps=document.querySelectorAll('.gap');
+  for(var i=0;i<gaps.length;i++){
+    var g=gaps[i]; total++;
+    var id=g.dataset.id;
+    if(gapFill[id]===g.dataset.ans){g.classList.add('right');g.classList.remove('wrong');ok++;}
+    else if(gapFill[id]){g.classList.add('wrong');}
+  }
+  var f=document.getElementById('gapfeed');
+  if(ok===total){f.textContent='🏆 Perfekt! Alle Lücken richtig!';fireConfetti();}
+  else f.textContent='✅ '+ok+' von '+total+' richtig. Rote Wörter: antippen und neu probieren!';
+}
+
+/* =========================================================
+   ZUORDNEN
+========================================================= */
+var mLeft=null, mSet='auge', mDone=0;
+function initMatch(set){
+  mSet=set; mLeft=null; mDone=0;
+  document.getElementById('mAuge').classList.toggle('on',set==='auge');
+  document.getElementById('mOhr').classList.toggle('on',set==='ohr');
+  document.getElementById('mSinne').classList.toggle('on',set==='sinne');
+  var data=MATCH[set];
+  var left=shuffle(data.map(function(p,i){return {txt:p[0],i:i};}));
+  var right=shuffle(data.map(function(p,i){return {txt:p[1],i:i};}));
+  var html='';
+  for(var r=0;r<data.length;r++){
+    html+='<button data-action="pick" data-side="L" data-i="'+left[r].i+'"><b>'+left[r].txt+'</b></button>';
+    html+='<button data-action="pick" data-side="R" data-i="'+right[r].i+'">'+right[r].txt+'</button>';
+  }
+  document.getElementById('pairs').innerHTML=html;
+  document.getElementById('matchfeed').textContent='';
+}
+function pick(btn){
+  if(btn.classList.contains('done'))return;
+  if(btn.dataset.side==='L'){
+    var ls=document.querySelectorAll('.pairs button[data-side="L"]');
+    for(var i=0;i<ls.length;i++) ls[i].classList.remove('sel');
+    btn.classList.add('sel'); mLeft=btn; return;
+  }
+  if(!mLeft){document.getElementById('matchfeed').textContent='👈 Wähle zuerst links einen Begriff!';return;}
+  if(btn.dataset.i===mLeft.dataset.i){
+    btn.classList.add('done'); mLeft.classList.add('done'); mLeft.classList.remove('sel');
+    mLeft=null; mDone++;
+    document.getElementById('matchfeed').textContent='✅ Richtig!';
+    if(mDone===MATCH[mSet].length){
+      document.getElementById('matchfeed').textContent='🏆 Alle Paare gefunden! Spitze!';
+      fireConfetti();
+    }
+  }else{
+    btn.classList.add('shake');
+    setTimeout(function(){btn.classList.remove('shake');},350);
+    document.getElementById('matchfeed').textContent='❌ Das passt nicht – probier nochmals!';
+  }
+}
+
+/* =========================================================
+   PUPILLEN-LABOR
+========================================================= */
+var slider=document.getElementById('lightSlider');
+function updateLab(){
+  var v=+slider.value;
+  var size=70-(v*0.45);
+  document.getElementById('labPupil').style.width=size+'%';
+  var box=document.getElementById('labBox');
+  var word=document.getElementById('labWord');
+  var txt=document.getElementById('labText');
+  if(v<33){
+    box.style.background='#2A3350'; box.style.color='#fff';
+    word.textContent='🌙 Dunkel';
+    txt.innerHTML='Die Pupille wird <b>gross</b>, damit mehr Licht ins Auge kommt.';
+  }else if(v<66){
+    box.style.background='#FFF3D6'; box.style.color='#27303F';
+    word.textContent='🌤️ Normal hell';
+    txt.innerHTML='Die Pupille ist mittelgross.';
+  }else{
+    box.style.background='#FFE9A8'; box.style.color='#27303F';
+    word.textContent='☀️ Sehr hell';
+    txt.innerHTML='Die Pupille wird <b>klein</b>, damit nicht zu viel Licht ins Auge kommt.';
+  }
+}
+slider.addEventListener('input',updateLab);
+slider.addEventListener('change',updateLab);
+
+/* Init */
+buildChips(); renderCard(); initGap(); initMatch('auge'); updateLab();
+</script>
+</body>
+</html>
