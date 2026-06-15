@@ -365,7 +365,24 @@ var QUIZ = [
  {t:"nase", q:"Wie viele Gerüche kann ein Mensch ungefähr unterscheiden?", c:["Ungefähr 100","Ungefähr 1'000","Ungefähr 10'000"], r:2},
  {t:"zunge", q:"Welche 4 Geschmäcker können wir unterscheiden?", c:["salzig, sauer, süss, bitter","salzig, scharf, süss, fruchtig","sauer, süss, scharf, mild"], r:0},
  {t:"zunge", q:"Eine Zitrone schmeckt …", c:["bitter","sauer","salzig"], r:1},
- {t:"zunge", q:"Warum schmeckt man das Zuckerstück auf der trockenen Zunge fast nicht?", c:["Weil Zucker keinen Geschmack hat","Weil die Zunge nur salzig schmecken kann","Weil sich der Zucker erst im Speichel auflösen muss"], r:2}
+ {t:"zunge", q:"Warum schmeckt man das Zuckerstück auf der trockenen Zunge fast nicht?", c:["Weil Zucker keinen Geschmack hat","Weil die Zunge nur salzig schmecken kann","Weil sich der Zucker erst im Speichel auflösen muss"], r:2},
+ {t:"auge", q:"Welche 4 Teile sollst du auf einem Bild vom Auge anschreiben können?", c:["Augenbraue, Augenlid, Wimpern, Pupille","Linse, Netzhaut, Sehnerv, Hornhaut","Iris, Pupille, Tränendrüse, Lid"], r:0},
+ {t:"auge", q:"Welche Informationen kann unser Auge aufnehmen?", c:["Nur Farben und Formen","Entfernung, Grösse, Form, Bewegung, hell/dunkel, scharf/unscharf","Nur hell und dunkel"], r:1},
+ {t:"auge", q:"Wodurch werden die Lichtstrahlen eines Gegenstandes zu unserem Auge geworfen?", c:["Sie werden reflektiert","Sie werden absorbiert","Sie werden verdampft"], r:0},
+ {t:"auge", q:"Wodurch treten die Lichtstrahlen zuerst ins Auge ein?", c:["Durch die Hornhaut und die Pupille","Durch den Sehnerv","Durch die Netzhaut"], r:0},
+ {t:"auge", q:"Was passiert mit den Lichtstrahlen, wenn sie durch die Linse gehen?", c:["Sie werden gebündelt und kreuzen sich","Sie werden gestoppt","Sie werden bunt"], r:0},
+ {t:"auge", q:"Wo entsteht das Bild, das wir sehen?", c:["Auf der Netzhaut","Auf der Hornhaut","In der Pupille"], r:0},
+ {t:"ohr", q:"Welche Teile musst du auf einem Bild vom Ohr erkennen können?", c:["Ohrmuschel, Gehörgang, Hammer, Amboss, Steigbügel, Trommelfell, Gehörschnecke, Hörnerven","Nur Ohrmuschel und Trommelfell","Aussenohr, Mittelohr, Gehirn, Auge, Nase"], r:0},
+ {t:"ohr", q:"Was ist ein anderes Wort für die Gehörknöchelchen?", c:["Hammer, Amboss, Steigbügel","Pupille, Iris, Linse","Ohrmuschel, Gehörgang"], r:0},
+ {t:"ohr", q:"Wie heisst das Fenster, durch das die Schwingungen in die Gehörschnecke gelangen?", c:["Rundes Fenster","Ovales Fenster","Eckiges Fenster"], r:1},
+ {t:"ohr", q:"Wofür brauchen wir das Gleichgewichtsorgan?", c:["Zum Hören von leisen Tönen","Um das Gleichgewicht zu halten, z.B. beim Velofahren","Um Gerüche zu unterscheiden"], r:1},
+ {t:"sinne", q:"Welches Sinnesorgan brauchen wir zum Riechen?", c:["Die Zunge","Die Nase","Die Haut"], r:1},
+ {t:"sinne", q:"Welches Sinnesorgan brauchen wir zum Schmecken?", c:["Die Zunge","Das Ohr","Das Auge"], r:0},
+ {t:"nase", q:"Was ist ungefähr so gross wie eine Briefmarke?", c:["Das Trommelfell","Der riechempfindliche Teil der Nasenschleimhaut","Die Pupille"], r:1},
+ {t:"nase", q:"Was haben wir im Geruchs-Experiment herausgefunden?", c:["Riechen und Schmecken arbeiten zusammen","Riechen hat nichts mit Schmecken zu tun","Man riecht mit den Ohren besser"], r:0},
+ {t:"zunge", q:"Welcher Geschmack passt zu Schokolade?", c:["sauer","süss","bitter"], r:1},
+ {t:"zunge", q:"Welcher Geschmack passt zu Chips?", c:["salzig","süss","bitter"], r:0},
+ {t:"zunge", q:"Was müssen Stoffe sein, damit wir sie mit der Zunge schmecken können?", c:["Trocken","In Flüssigkeit aufgelöst","Sehr kalt"], r:1}
 ];
 
 var GAP = {
@@ -490,10 +507,12 @@ function moveCard(d){
 /* =========================================================
    QUIZ
 ========================================================= */
-var qOrder=[], qPos=0, qScore=0, quizRunning=false;
+var qOrder=[], qPos=0, qScore=0, quizRunning=false, qStats={};
 function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
 function startQuiz(){
   quizRunning=true; qScore=0; qPos=0;
+  qStats={};
+  for(var k in TOPICS){ qStats[k]={right:0,total:0}; }
   qOrder=shuffle(QUIZ.map(function(_,i){return i;}));
   showQ();
 }
@@ -509,6 +528,7 @@ function showQ(){
   document.getElementById('quizArea').innerHTML =
     '<div class="qbox">'+
       '<span class="topic" style="background:'+tp.color+'">'+tp.emoji+' '+tp.name+'</span>'+
+      '<p class="hint" style="margin:0 0 8px;">Frage '+(qPos+1)+' von '+qOrder.length+'</p>'+
       '<h2>'+q.q+'</h2>'+
       '<div class="answers">'+btns+'</div>'+
       '<div class="qfeed" id="qfeed"></div>'+
@@ -519,8 +539,10 @@ function answer(btn,i,r){
   var all=document.querySelectorAll('.answers button');
   for(var k=0;k<all.length;k++) all[k].disabled=true;
   var feed=document.getElementById('qfeed');
+  var topic=QUIZ[qOrder[qPos]].t;
+  qStats[topic].total++;
   if(i===r){
-    btn.classList.add('right'); qScore++;
+    btn.classList.add('right'); qScore++; qStats[topic].right++;
     feed.textContent='✅ Richtig! Super!'; feed.style.color='var(--ok)';
   }else{
     btn.classList.add('wrong');
@@ -539,12 +561,32 @@ function showResult(){
   else if(pct>=0.7){em='🌟';msg='Stark! Fast alles richtig!';fireConfetti();}
   else if(pct>=0.5){em='👍';msg='Gut! Schau dir die Lernkarten nochmals an.';}
   document.getElementById('qbarfill').style.width='100%';
+
+  var statRows='';
+  for(var k in TOPICS){
+    var s=qStats[k];
+    if(!s || s.total===0) continue;
+    var tp=TOPICS[k];
+    var p=s.right/s.total*100;
+    statRows+=
+      '<div style="margin-bottom:10px;">'+
+        '<div style="display:flex;justify-content:space-between;font-size:.9rem;font-weight:bold;margin-bottom:4px;">'+
+          '<span>'+tp.emoji+' '+tp.name+'</span><span>'+s.right+' / '+s.total+'</span>'+
+        '</div>'+
+        '<div class="qbar" style="margin-bottom:0;"><i style="width:'+p+'%;background:'+tp.color+'"></i></div>'+
+      '</div>';
+  }
+
   document.getElementById('quizArea').innerHTML =
     '<div class="qbox result">'+
       '<div class="emoji">'+em+'</div>'+
       '<h2>'+qScore+' von '+qOrder.length+' richtig!</h2>'+
       '<p>'+msg+'</p>'+
-      '<button class="qnext" style="display:block" data-action="restart">🔄 Nochmals spielen</button>'+
+      '<div style="text-align:left;margin-top:18px;">'+
+        '<p class="hint" style="margin-bottom:10px;">📊 Auswertung nach Thema:</p>'+
+        statRows+
+      '</div>'+
+      '<button class="qnext" style="display:block;margin-top:16px;" data-action="restart">🔄 Nochmals spielen</button>'+
       '<button class="qnext" style="display:block;background:#fff" data-action="go" data-target="lernen">📖 Zu den Lernkarten</button>'+
     '</div>';
 }
