@@ -186,6 +186,31 @@
     border:2px solid var(--ink);background:#fff;border-radius:999px;padding:8px 14px;cursor:pointer;color:var(--ink);
   }
 
+  /* ---------- Auge beschriften ---------- */
+  .eyewrap{
+    position:relative;width:100%;max-width:420px;margin:0 auto;
+    background:var(--card);border:3px solid var(--ink);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:6px;
+  }
+  .eyewrap svg{width:100%;height:auto;display:block;}
+  .dot{
+    position:absolute;transform:translate(-50%,-50%);
+    width:38px;height:38px;border-radius:50%;border:3px solid var(--ink);
+    background:#FFE08A;font-family:inherit;font-weight:bold;font-size:1.05rem;color:var(--ink);
+    cursor:pointer;box-shadow:var(--shadow);z-index:3;
+  }
+  .dot.sel{background:var(--auge);color:#fff;}
+  .dot.right{background:var(--ok);color:#fff;}
+  .dot.wrong{background:var(--nein);color:#fff;}
+  .tag{
+    position:absolute;transform:translate(-50%,-50%);z-index:2;
+    font-size:.8rem;font-weight:bold;background:#fff;border:2px solid var(--ink);
+    border-radius:999px;padding:3px 8px;white-space:nowrap;pointer-events:none;display:none;
+  }
+  .tag.show{display:inline-block;}
+  .tag.right{border-color:var(--ok);color:var(--ok);}
+  .tag.wrong{border-color:var(--nein);color:var(--nein);}
+
   /* Konfetti */
   .conf{position:fixed;top:-12px;font-size:1.3rem;z-index:99;animation:fall 2.6s linear forwards;pointer-events:none;}
   @keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:.6;}}
@@ -210,6 +235,7 @@
     <button data-action="go" data-target="quiz"><span class="big-ic">❓</span><span>Quiz<small>Teste dein Wissen – mit Punkten!</small></span></button>
     <button data-action="go" data-target="gap"><span class="big-ic">✏️</span><span>Lückentext «Sehen»<small>Genau wie in der Prüfung</small></span></button>
     <button data-action="go" data-target="match"><span class="big-ic">🔗</span><span>Zuordnen<small>Welcher Teil macht was?</small></span></button>
+    <button data-action="go" data-target="label"><span class="big-ic">🏷️</span><span>Auge beschriften<small>Teile aufs Bild ziehen</small></span></button>
     <button data-action="go" data-target="lab"><span class="big-ic">👁️</span><span>Pupillen-Labor<small>Hell und dunkel ausprobieren</small></span></button>
   </div>
 
@@ -258,6 +284,49 @@
   <p class="hint" id="matchfeed"></p>
 </section>
 
+<!-- ================= AUGE BESCHRIFTEN ================= -->
+<section class="screen" id="scr-label">
+  <p class="hint">1. Tipp auf einen <b>Punkt</b> am Bild. &nbsp;2. Tipp auf das richtige <b>Wort</b>.</p>
+  <div class="wordbank" id="lblBank"></div>
+  <div class="eyewrap" id="eyewrap">
+    <svg viewBox="0 0 420 320" xmlns="http://www.w3.org/2000/svg" aria-label="Auge">
+      <!-- Augenbraue -->
+      <path d="M110 92 Q205 52 312 92" fill="none" stroke="#6B4A2B" stroke-width="15" stroke-linecap="round"/>
+      <!-- Augapfel weiss -->
+      <path d="M95 178 Q205 116 320 178 Q205 240 95 178 Z" fill="#FFFFFF" stroke="#27303F" stroke-width="4"/>
+      <!-- Iris -->
+      <circle cx="207" cy="178" r="44" fill="#5C93E6" stroke="#2F66C4" stroke-width="3"/>
+      <circle cx="207" cy="178" r="44" fill="none" stroke="#3C78D8" stroke-width="14" stroke-dasharray="4 6" opacity="0.5"/>
+      <!-- Pupille -->
+      <circle cx="207" cy="178" r="19" fill="#10131A"/>
+      <circle cx="199" cy="170" r="6" fill="#FFFFFF" opacity="0.85"/>
+      <!-- Oberlid-Linie -->
+      <path d="M100 172 Q205 120 318 172" fill="none" stroke="#27303F" stroke-width="4"/>
+      <!-- Wimpern -->
+      <g stroke="#27303F" stroke-width="3" stroke-linecap="round">
+        <line x1="150" y1="138" x2="143" y2="120"/>
+        <line x1="180" y1="128" x2="176" y2="108"/>
+        <line x1="210" y1="125" x2="210" y2="104"/>
+        <line x1="240" y1="128" x2="245" y2="108"/>
+        <line x1="270" y1="138" x2="278" y2="120"/>
+      </g>
+    </svg>
+    <!-- Tappbare Punkte (Prozent-Positionen) -->
+    <button class="dot" data-action="seldot" data-id="0" style="top:21%;left:48%">1</button>
+    <button class="dot" data-action="seldot" data-id="1" style="top:50%;left:25%">2</button>
+    <button class="dot" data-action="seldot" data-id="2" style="top:31%;left:64%">3</button>
+    <button class="dot" data-action="seldot" data-id="3" style="top:55%;left:49%">4</button>
+    <!-- Label-Tags erscheinen hier -->
+    <span class="tag" id="tag0" style="top:9%;left:48%"></span>
+    <span class="tag" id="tag1" style="top:50%;left:2%"></span>
+    <span class="tag" id="tag2" style="top:20%;left:74%"></span>
+    <span class="tag" id="tag3" style="top:74%;left:49%"></span>
+  </div>
+  <p class="hint" id="lblFeed"></p>
+  <button class="check" data-action="checklabel">✅ Kontrollieren</button>
+  <p style="text-align:center;margin-top:8px;"><button class="topbtn" data-action="resetlabel">🔄 Nochmals</button></p>
+</section>
+
 <!-- ================= PUPILLEN-LABOR ================= -->
 <section class="screen" id="scr-lab">
   <div class="lab" id="labBox">
@@ -284,6 +353,7 @@
   <button id="nav-quiz" data-action="go" data-target="quiz"><span class="ic">❓</span>Quiz</button>
   <button id="nav-gap" data-action="go" data-target="gap"><span class="ic">✏️</span>Lücken</button>
   <button id="nav-match" data-action="go" data-target="match"><span class="ic">🔗</span>Paare</button>
+  <button id="nav-label" data-action="go" data-target="label"><span class="ic">🏷️</span>Bild</button>
   <button id="nav-lab" data-action="go" data-target="lab"><span class="ic">👁️</span>Labor</button>
 </nav>
 
@@ -366,7 +436,6 @@ var QUIZ = [
  {t:"zunge", q:"Welche 4 Geschmäcker können wir unterscheiden?", c:["salzig, sauer, süss, bitter","salzig, scharf, süss, fruchtig","sauer, süss, scharf, mild"], r:0},
  {t:"zunge", q:"Eine Zitrone schmeckt …", c:["bitter","sauer","salzig"], r:1},
  {t:"zunge", q:"Warum schmeckt man das Zuckerstück auf der trockenen Zunge fast nicht?", c:["Weil Zucker keinen Geschmack hat","Weil die Zunge nur salzig schmecken kann","Weil sich der Zucker erst im Speichel auflösen muss"], r:2},
- {t:"auge", q:"Welche 4 Teile sollst du auf einem Bild vom Auge anschreiben können?", c:["Augenbraue, Augenlid, Wimpern, Pupille","Linse, Netzhaut, Sehnerv, Hornhaut","Iris, Pupille, Tränendrüse, Lid"], r:0},
  {t:"auge", q:"Welche Informationen kann unser Auge aufnehmen?", c:["Nur Farben und Formen","Entfernung, Grösse, Form, Bewegung, hell/dunkel, scharf/unscharf","Nur hell und dunkel"], r:1},
  {t:"auge", q:"Wodurch werden die Lichtstrahlen eines Gegenstandes zu unserem Auge geworfen?", c:["Sie werden reflektiert","Sie werden absorbiert","Sie werden verdampft"], r:0},
  {t:"auge", q:"Wodurch treten die Lichtstrahlen zuerst ins Auge ein?", c:["Durch die Hornhaut und die Pupille","Durch den Sehnerv","Durch die Netzhaut"], r:0},
@@ -451,6 +520,10 @@ document.addEventListener('click', function(ev){
   else if(act==='resetgap') initGap();
   else if(act==='matchset') initMatch(el.dataset.set);
   else if(act==='pick') pick(el);
+  else if(act==='seldot') selDot(el.dataset.id);
+  else if(act==='labelword') placeLabel(el.dataset.word);
+  else if(act==='checklabel') checkLabel();
+  else if(act==='resetlabel') initLabel();
 });
 
 /* =========================================================
@@ -735,8 +808,77 @@ function updateLab(){
 slider.addEventListener('input',updateLab);
 slider.addEventListener('change',updateLab);
 
+/* =========================================================
+   AUGE BESCHRIFTEN
+========================================================= */
+var LABELS = ["Augenbraue","Augenlid","Wimpern","Pupille"]; // Index = Punkt-Nummer
+var lblSel=null, lblFill={};
+function lblWordId(w){return 'lw-'+w.replace(/ /g,'_');}
+function initLabel(){
+  lblSel=null; lblFill={};
+  for(var i=0;i<4;i++){
+    var d=document.querySelector('.dot[data-id="'+i+'"]');
+    d.className='dot'; d.textContent=(i+1);
+    var t=document.getElementById('tag'+i);
+    t.className='tag'; t.textContent='';
+  }
+  var words=shuffle(LABELS.slice());
+  var wb='';
+  for(var k=0;k<words.length;k++){
+    wb+='<button id="'+lblWordId(words[k])+'" data-action="labelword" data-word="'+words[k]+'">'+words[k]+'</button>';
+  }
+  document.getElementById('lblBank').innerHTML=wb;
+  document.getElementById('lblFeed').textContent='';
+}
+function selDot(id){
+  // schon beschriftet? Wort zurückgeben
+  if(lblFill[id]!==undefined){
+    var w=lblFill[id];
+    var wb=document.getElementById(lblWordId(w)); if(wb) wb.disabled=false;
+    delete lblFill[id];
+    var tg=document.getElementById('tag'+id);
+    tg.className='tag'; tg.textContent='';
+  }
+  var dots=document.querySelectorAll('.dot');
+  for(var i=0;i<dots.length;i++) dots[i].classList.remove('sel','right','wrong');
+  document.querySelector('.dot[data-id="'+id+'"]').classList.add('sel');
+  lblSel=id;
+  document.getElementById('lblFeed').textContent='';
+}
+function placeLabel(w){
+  if(lblSel===null){
+    document.getElementById('lblFeed').textContent='👆 Tipp zuerst auf einen Punkt am Bild!';
+    return;
+  }
+  // falls dieses Wort woanders schon liegt: entfernen
+  for(var key in lblFill){ if(lblFill[key]===w){ delete lblFill[key]; var ot=document.getElementById('tag'+key); ot.className='tag'; ot.textContent=''; } }
+  var tag=document.getElementById('tag'+lblSel);
+  tag.textContent=w; tag.className='tag show';
+  lblFill[lblSel]=w;
+  document.querySelector('.dot[data-id="'+lblSel+'"]').classList.remove('sel');
+  var wbtn=document.getElementById(lblWordId(w)); if(wbtn) wbtn.disabled=true;
+  // alle Wörter wieder aktivieren, die nirgends mehr liegen
+  var used={}; for(var kk in lblFill) used[lblFill[kk]]=1;
+  for(var n=0;n<LABELS.length;n++){ var b=document.getElementById(lblWordId(LABELS[n])); if(b) b.disabled=!!used[LABELS[n]]; }
+  lblSel=null;
+  document.getElementById('lblFeed').textContent='';
+}
+function checkLabel(){
+  var ok=0;
+  for(var i=0;i<4;i++){
+    var d=document.querySelector('.dot[data-id="'+i+'"]');
+    var t=document.getElementById('tag'+i);
+    d.classList.remove('sel');
+    if(lblFill[i]===LABELS[i]){ d.classList.add('right'); t.classList.add('show','right'); t.classList.remove('wrong'); ok++; }
+    else if(lblFill[i]!==undefined){ d.classList.add('wrong'); t.classList.add('show','wrong'); t.classList.remove('right'); }
+  }
+  var f=document.getElementById('lblFeed');
+  if(ok===4){ f.textContent='🏆 Perfekt! Alle 4 Teile richtig beschriftet!'; fireConfetti(); }
+  else f.textContent='✅ '+ok+' von 4 richtig. Rote Punkte: antippen und neu probieren!';
+}
+
 /* Init */
-buildChips(); renderCard(); initGap(); initMatch('auge'); updateLab();
+buildChips(); renderCard(); initGap(); initMatch('auge'); initLabel(); updateLab();
 </script>
 </body>
 </html>
