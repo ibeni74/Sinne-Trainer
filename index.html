@@ -14,6 +14,7 @@
     --nase:#2EA56C;
     --zunge:#E2548F;
     --haut:#8A63D2;
+    --lunge:#D14B5A;
     --ok:#2EA56C;
     --nein:#E05252;
     --shadow:0 4px 0 rgba(39,48,63,.14);
@@ -100,6 +101,7 @@
   .chip.t-nase.on{background:var(--nase);}
   .chip.t-zunge.on{background:var(--zunge);}
   .chip.t-sinne.on{background:var(--haut);}
+  .chip.t-lunge.on{background:var(--lunge);}
 
   /* ---------- Flashcards ---------- */
   .fcard{
@@ -241,7 +243,7 @@
 
   <div class="badge-row">
     <span class="badge">👁️ Auge</span><span class="badge">👂 Ohr</span>
-    <span class="badge">👃 Nase</span><span class="badge">👅 Zunge</span><span class="badge">✋ Haut</span>
+    <span class="badge">👃 Nase</span><span class="badge">👅 Zunge</span><span class="badge">✋ Haut</span><span class="badge">🫁 Lunge & Herz</span>
   </div>
 </section>
 
@@ -278,6 +280,7 @@
     <button class="chip t-auge on" id="mAuge" data-action="matchset" data-set="auge">👁️ Auge</button>
     <button class="chip t-ohr" id="mOhr" data-action="matchset" data-set="ohr">👂 Ohr</button>
     <button class="chip t-zunge" id="mSinne" data-action="matchset" data-set="sinne">🖐️ 5 Sinne</button>
+    <button class="chip t-lunge" id="mLunge" data-action="matchset" data-set="lunge">🫁 Lunge & Herz</button>
   </div>
   <p class="hint">Finde die Paare: Tipp links einen Begriff an, dann rechts die passende Aufgabe.</p>
   <div class="pairs" id="pairs"></div>
@@ -366,7 +369,8 @@ var TOPICS = {
   ohr:{name:"Ohr", emoji:"👂", color:"var(--ohr)"},
   nase:{name:"Geruchssinn", emoji:"👃", color:"var(--nase)"},
   zunge:{name:"Geschmackssinn", emoji:"👅", color:"var(--zunge)"},
-  sinne:{name:"5 Sinne", emoji:"🖐️", color:"var(--haut)"}
+  sinne:{name:"5 Sinne", emoji:"🖐️", color:"var(--haut)"},
+  lunge:{name:"Lunge & Herz", emoji:"🫁", color:"var(--lunge)"}
 };
 
 var CARDS = [
@@ -409,7 +413,39 @@ var CARDS = [
  {t:"zunge", q:"Welche 4 Geschmäcker können wir unterscheiden? Nenne je ein Beispiel!",
   a:"🧂 salzig → Chips\n🍋 sauer → Zitrone\n🍫 süss → Schokolade\n☕ bitter → Grapefruit oder Kaffee"},
  {t:"zunge", q:"Was haben wir beim Experiment mit dem Zuckerstück gelernt?",
-  a:"Auf der trockenen Zunge schmeckt man den Zucker fast nicht. Erst wenn er sich im Speichel auflöst, schmecken wir süss.\n→ Wir schmecken nur, was sich in Flüssigkeit auflöst! 💧"}
+  a:"Auf der trockenen Zunge schmeckt man den Zucker fast nicht. Erst wenn er sich im Speichel auflöst, schmecken wir süss.\n→ Wir schmecken nur, was sich in Flüssigkeit auflöst! 💧"},
+ {t:"lunge", q:"Was passiert, wenn du einatmest?",
+  a:"Du nimmst Luft auf. Die Luft enthält Sauerstoff, den wir zum Leben brauchen. 🌬️"},
+ {t:"lunge", q:"Wodurch atmest du Luft ein?",
+  a:"Durch die Nase oder den Mund. 👃👄"},
+ {t:"lunge", q:"Welchen Weg nimmt die Luft beim Einatmen?",
+  a:"Nase / Mund → Luftröhre → Lungen 🫁"},
+ {t:"lunge", q:"Was machen deine Lungen?",
+  a:"Sie atmen Luft ein und aus. Sie nehmen den Sauerstoff aus der Luft und geben ihn an den Körper weiter."},
+ {t:"lunge", q:"Was ist das Zwerchfell?",
+  a:"Eine Muskelplatte unter den Lungen.\nEinatmen → es schiebt sich nach unten ⬇️\nAusatmen → es schiebt sich nach oben ⬆️"},
+ {t:"lunge", q:"Was passiert beim Ausatmen?",
+  a:"Die verbrauchte Luft wird durch Nase und Mund wieder hinausgedrückt. Das Zwerchfell schiebt sich nach oben und hilft dabei."},
+ {t:"lunge", q:"Wohin kommt der Sauerstoff in der Lunge?",
+  a:"In die winzigen Lungenbläschen. Von dort geht er ins Blut."},
+ {t:"lunge", q:"Wie viele Luftballons könntest du mit deiner ausgeatmeten Luft an einem Tag füllen?",
+  a:"Ungefähr 10'000 Luftballons! 🎈"},
+ {t:"lunge", q:"Was ist dein Herz und was macht es?",
+  a:"Dein Herz ist ein Muskel, der das Blut durch deinen ganzen Körper pumpt. ❤️"},
+ {t:"lunge", q:"Was transportiert dein Blut?",
+  a:"Sauerstoff und Nährstoffe in alle Teile deines Körpers."},
+ {t:"lunge", q:"Wie heissen die kleinen Röhren, durch die das Blut fliesst?",
+  a:"Adern oder Blutgefässe."},
+ {t:"lunge", q:"Welche Farbe hat Blut mit viel Sauerstoff – und welche mit wenig?",
+  a:"Viel Sauerstoff → rot 🔴\nWenig Sauerstoff → lila/blau 🟣"},
+ {t:"lunge", q:"Wo kannst du fühlen, wie sich dein Blut bewegt?",
+  a:"Am Handgelenk – dort spürst du den Puls. ✋"},
+ {t:"lunge", q:"Wie läuft der Blutkreislauf in 3 Schritten?",
+  a:"1. Blut mit Sauerstoff gelangt aus den Lungen ins Herz.\n2. Das Herz pumpt das Blut durch den Körper.\n3. Der Körper verbraucht den Sauerstoff."},
+ {t:"lunge", q:"Fact Box: Wie schwer sind die Lungen und wie viel Luft passt hinein?",
+  a:"Die Lungen wiegen etwa 1300 g. In die Lunge passen ungefähr 3,5 Liter Luft."},
+ {t:"lunge", q:"Fact Box: Wie oft atmest du ungefähr pro Minute?",
+  a:"Etwa 16 Mal pro Minute. Dabei atmest du etwa 10 Liter Luft ein und aus."}
 ];
 
 var QUIZ = [
@@ -451,7 +487,25 @@ var QUIZ = [
  {t:"nase", q:"Was haben wir im Geruchs-Experiment herausgefunden?", c:["Riechen und Schmecken arbeiten zusammen","Riechen hat nichts mit Schmecken zu tun","Man riecht mit den Ohren besser"], r:0},
  {t:"zunge", q:"Welcher Geschmack passt zu Schokolade?", c:["sauer","süss","bitter"], r:1},
  {t:"zunge", q:"Welcher Geschmack passt zu Chips?", c:["salzig","süss","bitter"], r:0},
- {t:"zunge", q:"Was müssen Stoffe sein, damit wir sie mit der Zunge schmecken können?", c:["Trocken","In Flüssigkeit aufgelöst","Sehr kalt"], r:1}
+ {t:"zunge", q:"Was müssen Stoffe sein, damit wir sie mit der Zunge schmecken können?", c:["Trocken","In Flüssigkeit aufgelöst","Sehr kalt"], r:1},
+ {t:"lunge", q:"Was enthält die Luft, das wir zum Leben brauchen?", c:["Zucker","Sauerstoff","Wasser"], r:1},
+ {t:"lunge", q:"Wodurch atmest du Luft ein?", c:["Durch die Ohren","Durch die Haut","Durch die Nase oder den Mund"], r:2},
+ {t:"lunge", q:"Welchen Weg nimmt die Luft beim Einatmen?", c:["Nase/Mund → Luftröhre → Lungen","Mund → Magen → Lunge","Nase → Herz → Lunge"], r:0},
+ {t:"lunge", q:"Was machen die Lungen mit dem Sauerstoff?", c:["Sie speichern ihn für immer","Sie geben ihn an den Körper weiter","Sie machen Wasser daraus"], r:1},
+ {t:"lunge", q:"Was ist das Zwerchfell?", c:["Ein Knochen","Ein Blutgefäss","Eine Muskelplatte"], r:2},
+ {t:"lunge", q:"Was macht das Zwerchfell beim Einatmen?", c:["Es schiebt sich nach unten","Es schiebt sich nach oben","Es bleibt gleich"], r:0},
+ {t:"lunge", q:"Was macht das Zwerchfell beim Ausatmen?", c:["Es schiebt sich nach unten","Es schiebt sich nach oben","Es verschwindet"], r:1},
+ {t:"lunge", q:"Wohin kommt der Sauerstoff in der Lunge?", c:["In den Magen","In die winzigen Lungenbläschen","Ins Ohr"], r:1},
+ {t:"lunge", q:"Wie viele Luftballons könntest du mit deiner ausgeatmeten Luft an einem Tag füllen?", c:["ungefähr 100","ungefähr 1'000","ungefähr 10'000"], r:2},
+ {t:"lunge", q:"Was ist dein Herz?", c:["Ein Knochen","Ein Muskel, der Blut pumpt","Ein Lungenbläschen"], r:1},
+ {t:"lunge", q:"Was transportiert dein Blut durch den Körper?", c:["Nur Wasser","Sauerstoff und Nährstoffe","Nur Luft"], r:1},
+ {t:"lunge", q:"Wie heissen die kleinen Röhren, durch die das Blut fliesst?", c:["Adern oder Blutgefässe","Luftröhren","Nerven"], r:0},
+ {t:"lunge", q:"Wo kannst du fühlen, wie sich dein Blut bewegt?", c:["Am Handgelenk","Am Ohr","An der Nase"], r:0},
+ {t:"lunge", q:"Welche Farbe hat Blut mit viel Sauerstoff?", c:["Rot","Lila","Grün"], r:0},
+ {t:"lunge", q:"Welche Farbe hat Blut mit wenig Sauerstoff?", c:["Rot","Lila","Gelb"], r:1},
+ {t:"lunge", q:"Was passiert im Blutkreislauf zuerst?", c:["Das Herz pumpt das Blut durch den Körper","Blut mit Sauerstoff gelangt aus den Lungen ins Herz","Der Körper verbraucht den Sauerstoff"], r:1},
+ {t:"lunge", q:"Wie schwer sind die Lungen ungefähr? (Fact Box)", c:["etwa 130 g","etwa 1300 g","etwa 13 kg"], r:1},
+ {t:"lunge", q:"Wie oft atmest du ungefähr pro Minute? (Fact Box)", c:["etwa 16 Mal","etwa 60 Mal","etwa 3 Mal"], r:0}
 ];
 
 var GAP = {
@@ -496,6 +550,14 @@ var MATCH = {
     ["👃 Nase","riechen"],
     ["👅 Zunge","schmecken"],
     ["✋ Haut","fühlen / tasten"]
+  ],
+  lunge:[
+    ["Lunge","atmet Luft ein und aus"],
+    ["Zwerchfell","Muskelplatte – schiebt sich beim Einatmen nach unten"],
+    ["Lungenbläschen","hier kommt der Sauerstoff ins Blut"],
+    ["Herz","pumpt das Blut durch den Körper"],
+    ["Blut","transportiert Sauerstoff und Nährstoffe"],
+    ["Blutgefässe","Röhren, durch die das Blut fliesst"]
   ]
 };
 
@@ -513,7 +575,9 @@ document.addEventListener('click', function(ev){
   else if(act==='topic') setTopic(el.dataset.topic);
   else if(act==='answer') answer(el, parseInt(el.dataset.i,10), parseInt(el.dataset.r,10));
   else if(act==='qnext'){ qPos++; showQ(); }
-  else if(act==='restart') startQuiz();
+  else if(act==='restart') startQuiz(quizFilter);
+  else if(act==='quizstart') startQuiz(el.dataset.filter);
+  else if(act==='quizmenu') showQuizMenu();
   else if(act==='selgap') selGap(el.dataset.id);
   else if(act==='useword') useWord(el.dataset.word);
   else if(act==='checkgaps') checkGaps();
@@ -536,7 +600,7 @@ function go(s){
   var navs=document.querySelectorAll('nav button');
   for(var j=0;j<navs.length;j++) navs[j].classList.remove('on');
   var nb=document.getElementById('nav-'+s); if(nb) nb.classList.add('on');
-  if(s==='quiz' && !quizRunning) startQuiz();
+  if(s==='quiz' && !quizRunning) showQuizMenu();
   window.scrollTo(0,0);
 }
 
@@ -551,8 +615,8 @@ function toggleHero(){
 ========================================================= */
 var fTopic='auge', fIdx=0, fFlip=false;
 function buildChips(){
-  var order=['auge','ohr','nase','zunge','sinne'];
-  var cls={auge:'t-auge',ohr:'t-ohr',nase:'t-nase',zunge:'t-zunge',sinne:'t-sinne'};
+  var order=['auge','ohr','nase','zunge','sinne','lunge'];
+  var cls={auge:'t-auge',ohr:'t-ohr',nase:'t-nase',zunge:'t-zunge',sinne:'t-sinne',lunge:'t-lunge'};
   var html='';
   for(var i=0;i<order.length;i++){
     var k=order[i];
@@ -580,13 +644,32 @@ function moveCard(d){
 /* =========================================================
    QUIZ
 ========================================================= */
-var qOrder=[], qPos=0, qScore=0, quizRunning=false, qStats={};
+var qOrder=[], qPos=0, qScore=0, quizRunning=false, qStats={}, quizFilter='all';
 function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
-function startQuiz(){
+function showQuizMenu(){
+  quizRunning=false;
+  document.getElementById('qbarfill').style.width='0%';
+  var btns='<button class="qnext" style="display:block;background:#FFE08A" data-action="quizstart" data-filter="all">🎯 Alle Themen ('+QUIZ.length+' Fragen)</button>';
+  for(var k in TOPICS){
+    var n=QUIZ.filter(function(q){return q.t===k;}).length;
+    if(!n) continue;
+    var tp=TOPICS[k];
+    btns+='<button class="qnext" style="display:block;background:#fff;border-color:'+tp.color+'" data-action="quizstart" data-filter="'+k+'">'+tp.emoji+' '+tp.name+' ('+n+')</button>';
+  }
+  document.getElementById('quizArea').innerHTML =
+    '<div class="qbox" style="text-align:center;">'+
+      '<h2>❓ Welches Quiz möchtest du?</h2>'+
+      '<p class="hint" style="margin-bottom:14px;">Wähle ein Thema – oder spiel alle zusammen.</p>'+
+      btns+
+    '</div>';
+}
+function startQuiz(filter){
+  quizFilter=filter||'all';
   quizRunning=true; qScore=0; qPos=0;
   qStats={};
   for(var k in TOPICS){ qStats[k]={right:0,total:0}; }
-  qOrder=shuffle(QUIZ.map(function(_,i){return i;}));
+  var all=QUIZ.map(function(_,i){return i;});
+  qOrder=shuffle(quizFilter==='all' ? all : all.filter(function(i){return QUIZ[i].t===quizFilter;}));
   showQ();
 }
 function showQ(){
@@ -660,6 +743,7 @@ function showResult(){
         statRows+
       '</div>'+
       '<button class="qnext" style="display:block;margin-top:16px;" data-action="restart">🔄 Nochmals spielen</button>'+
+      '<button class="qnext" style="display:block;background:#fff" data-action="quizmenu">📚 Anderes Thema wählen</button>'+
       '<button class="qnext" style="display:block;background:#fff" data-action="go" data-target="lernen">📖 Zu den Lernkarten</button>'+
     '</div>';
 }
@@ -746,6 +830,7 @@ function initMatch(set){
   document.getElementById('mAuge').classList.toggle('on',set==='auge');
   document.getElementById('mOhr').classList.toggle('on',set==='ohr');
   document.getElementById('mSinne').classList.toggle('on',set==='sinne');
+  document.getElementById('mLunge').classList.toggle('on',set==='lunge');
   var data=MATCH[set];
   var left=shuffle(data.map(function(p,i){return {txt:p[0],i:i};}));
   var right=shuffle(data.map(function(p,i){return {txt:p[1],i:i};}));
